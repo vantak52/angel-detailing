@@ -1,0 +1,10 @@
+{
+  "name": "angel-detailing-redesign",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node serve.mjs",
+    "build": "python build.py",
+    "check": "node --check dist/app.js"
+  }
+}

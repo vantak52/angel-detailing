@@ -1,0 +1,7 @@
+docs/
+node_modules/
+__pycache__/
+*.tar.gz
+*.tgz
+*.zip
+!website-source-*.zip
