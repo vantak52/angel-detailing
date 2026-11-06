@@ -1,0 +1,67 @@
+name: Publish Angel Detailing
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Restore initial project files
+        shell: bash
+        run: |
+          if compgen -G 'website-source-*.zip' > /dev/null; then
+            python - <<'PY'
+          from pathlib import Path, PurePosixPath
+          from zipfile import ZipFile
+          for archive in sorted(Path('.').glob('website-source-*.zip')):
+              with ZipFile(archive) as z:
+                  for name in z.namelist():
+                      p = PurePosixPath(name)
+                      if p.is_absolute() or '..' in p.parts or p.parts[0] in {'.git', '.github', '.openai'}:
+                          raise SystemExit('Unsafe archive member')
+                  z.extractall('.')
+          PY
+            git add README.md .gitignore build.py export_pages.py package.json requirements.txt serve.mjs content templates dist
+            git rm -- website-source-*.zip
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Add complete Angel Detailing source'
+            git push origin HEAD:main
+          fi
+
+      - name: Install build dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Build website
+        run: |
+          python build.py
+          node --check dist/app.js
+          python export_pages.py --base-path /angel-detailing
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
