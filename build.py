@@ -1,7 +1,7 @@
 """Build a dependency-free, multi-page redesign from the original public content."""
 from pathlib import Path
 from bs4 import BeautifulSoup
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit, parse_qs
 from html import escape as e
 import json,re
 
@@ -149,23 +149,47 @@ for w in works:
 
 # Service category pages, preserving both direct and ?sl= addresses.
 service_details={}
+
+def related_services(category, current_slug, summaries):
+    siblings=[(slug,item) for slug,item in DETAILS.items() if item['parent']==category['url'] and slug!=current_slug]
+    if not siblings:
+        return ''
+    cards=[]
+    for slug,item in siblings:
+        summary=summaries.get(slug,'')
+        text=f'<p>{e(summary)}</p>' if summary else ''
+        cards.append(f'<a class="related-service-card" href="{e(item["query"])}"><div><h3>{e(item["title"])}</h3>{text}</div>{ARROW}</a>')
+    return f'<section class="container related-services" aria-labelledby="related-services-title"><div class="related-services-heading"><h2 id="related-services-title">Другие услуги</h2><p>Также в направлении «{e(category["title"])}»</p></div><div class="related-services-grid">'+''.join(cards)+'</div></section>'
+
 for s in CAT['services']:
     p=BY_URL[s['url']]
     soup=BeautifulSoup(p['html'],'html.parser')
     copy=clean(str(soup.select_one('.serv .content') or s['description']))
+    summaries={}
+    for item in soup.select('.servlist .elem'):
+        link=item.select_one('.cont a')
+        comment=item.select_one('.comment')
+        if link:
+            item_slug=parse_qs(urlsplit(link.get('href','')).query).get('sl',[''])[0]
+            if item_slug and comment:
+                summaries[item_slug]=comment.get_text(' ',strip=True)
     children=[]
     for slug,d in DETAILS.items():
         if d['parent']!=s['url']: continue
         src=BeautifulSoup(d.get('html',''),'html.parser')
-        # The selected service is in .wallpage .list.serv, before related works.
-        selected=src.select_one('.wallpage .list.serv')
+        # The legacy sidebar contains counters and selection marks, not the service description.
+        selected=src.select_one('.serv > .info > .content')
         if selected:
             for price in selected.select('.prc'): price.decompose()
+            for link in selected.select('a[href]'):
+                url=urlsplit(link['href'])
+                if url.hostname in {'angeldetailing.ru','www.angeldetailing.ru'} and url.path.startswith('/uslugi/'):
+                    link['href']=url.path+('?' + url.query if url.query else '')+('#' + url.fragment if url.fragment else '')
         description=clean(str(selected or ''))
         if not BeautifulSoup(description,'html.parser').get_text(strip=True):
             item=next((el for el in soup.select('.servlist .elem') if (el.select_one('a') and slug in el.select_one('a').get('href',''))),None)
             description=clean(str(item.select_one('.comment'))) if item else ''
-        child_body=intro('УСЛУГИ / '+s['title'].upper(),e(d['title']))+f'<section class="container service-detail"><div class="service-detail-image"><img src="{asset(s["image"])}" width="1300" height="731" alt="{e(s["title"])}"></div><div><div class="prose">{description}</div><p class="muted">Объём работ и стоимость уточняются в студии.</p><button class="button" data-book>Обсудить услугу {ARROW}</button><a class="text-link" href="{s["url"]}">Все услуги направления {ARROW}</a></div></section>'
+        child_body=intro('УСЛУГИ / '+s['title'].upper(),e(d['title']))+f'<section class="container service-detail"><div class="service-detail-image"><img src="{asset(s["image"])}" width="1300" height="731" alt="{e(s["title"])}"></div><div><div class="prose">{description}</div><p class="muted">Объём работ и стоимость уточняются в студии.</p><button class="button" data-book>Обсудить услугу {ARROW}</button><a class="text-link" href="{s["url"]}">Все услуги направления {ARROW}</a></div></section>'+related_services(s,slug,summaries)
         write(d['url'],d['title'],child_body)
         service_details[slug]={'title':d['title'],'body':child_body}
         children.append(f'<a class="service-row" href="{d["query"]}"><h3>{e(d["title"])}</h3>{ARROW}</a>')
