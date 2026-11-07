@@ -3,7 +3,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 from urllib.parse import quote, urlsplit, parse_qs
 from html import escape as e
-import json,re
+import hashlib,json,re
 
 ROOT=Path(__file__).parent
 DIST=ROOT/'dist'
@@ -208,4 +208,11 @@ s=BeautifulSoup(policy.get('html',''),'html.parser')
 if s.h1:s.h1.decompose()
 write('/politika','Политика конфиденциальности',intro('ДОКУМЕНТЫ','Политика конфиденциальности')+'<article class="container prose policy">'+clean(str(s))+'</article>')
 write('/404.html','Страница не найдена',intro('404 / СТРАНИЦА НЕ НАЙДЕНА','Продолжим знакомство?')+'<div class="container error-actions"><a class="button" href="/">На главную ↗</a><a class="text-link" href="/galereya/">Посмотреть работы ↗</a></div>')
+# Version changed service assets so returning visitors do not keep the legacy sidebar.
+service_asset_versions={name:hashlib.sha256((DIST/name).read_bytes()).hexdigest()[:12] for name in ('editorial.css','service-details.js')}
+for page in DIST.rglob('*.html'):
+    doc=page.read_text(encoding='utf8')
+    for name,version in service_asset_versions.items():
+        doc=doc.replace(f'"/{name}"',f'"/{name}?v={version}"')
+    page.write_text(doc,encoding='utf8')
 print('Built',len(list(DIST.rglob('*.html'))),'pages;',len(works),'projects;',len(DETAILS),'individual services')
