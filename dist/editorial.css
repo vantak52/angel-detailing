@@ -1,5 +1,6 @@
 /* Angel Detailing — typography, layout and interaction refinements. */
 :root {
+  color-scheme: dark;
   --bg: #111313;
   --panel: #181a19;
   --text: #eeeee8;
@@ -7,6 +8,23 @@
   --gold: #c3b69e;
   --line: #ffffff1f;
   --paper: #e8e5dc;
+}
+
+/* Theme controls share one saved preference on every page. */
+.theme-toggle { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 44px; height: 44px; padding: 0; color: var(--text); background: transparent; border: 1px solid var(--line); border-radius: 50%; transition: background .2s, border-color .2s; }
+.theme-toggle:hover { background: var(--panel); border-color: var(--gold); }
+.theme-toggle svg { flex-shrink: 0; }
+.theme-toggle .theme-moon { display: none; }
+.theme-toggle-mobile { display: none; }
+[data-theme=light] .theme-toggle .theme-sun { display: none; }
+[data-theme=light] .theme-toggle .theme-moon { display: block; }
+@media (max-width: 1050px) {
+  .theme-toggle-desktop { display: none; }
+  .theme-toggle-mobile { display: flex; width: 100%; height: 58px; justify-content: start; gap: 13px; margin-top: 20px; padding-inline: 16px; border-radius: 3px; font-size: 14px; text-align: left; }
+  .theme-switch { width: 36px; height: 22px; border: 1px solid var(--muted); border-radius: 20px; margin-left: auto; padding: 3px; }
+  .theme-switch::before { content: ''; display: block; width: 14px; height: 14px; background: var(--muted); border-radius: 50%; transition: transform .2s; }
+  [data-theme=light] .theme-switch { border-color: var(--gold); }
+  [data-theme=light] .theme-switch::before { background: var(--gold); transform: translateX(14px); }
 }
 
 body { font-size: 15px; }
@@ -351,3 +369,58 @@ input:not([type=checkbox]), textarea { font-size: 14px; }
   .portrait-link:hover > img { transform: none; }
   .service-preview > .preview-back { transition: none; }
 }
+
+/* A warm white palette; photographic overlays keep their own dark contrast. */
+:root[data-theme=light] {
+  color-scheme: light;
+  --bg: #faf9f6;
+  --panel: #f0efe9;
+  --text: #222923;
+  --muted: #62685f;
+  --gold: #7b6740;
+  --line: #22292326;
+  --paper: #eae7dd;
+}
+[data-theme=light] .header { background: #faf9f6f7; }
+[data-theme=light] .mobile-menu,
+[data-theme=light] .footer { background: var(--bg); }
+[data-theme=light] .brand img { filter: brightness(0); opacity: .85; }
+[data-theme=light] .desktop-nav a { color: var(--muted); }
+[data-theme=light] .desktop-nav a:hover,
+[data-theme=light] .desktop-nav a[aria-current] { color: var(--gold); }
+[data-theme=light] .button { background: #283329; color: #faf9f6; }
+[data-theme=light] .button:hover { background: #3a493b; }
+[data-theme=light] .button-outline { color: var(--text); background: transparent; border-color: #22292366; }
+[data-theme=light] .button-outline:hover { color: var(--text); background: #22292308; border-color: var(--gold); }
+[data-theme=light] .hero-location,
+[data-theme=light] .hero-description,
+[data-theme=light] .hero-credentials p,
+[data-theme=light] .projects-footnote,
+[data-theme=light] .page-intro .eyebrow,
+[data-theme=light] .footer-bottom,
+[data-theme=light] .service-index-number { color: var(--muted); }
+[data-theme=light] .gyeon-word,
+[data-theme=light] .yandex-letter { color: var(--text); }
+[data-theme=light] .hero-credentials p { border-color: var(--line); }
+[data-theme=light] .service-index-links,
+[data-theme=light] .service-index-link,
+[data-theme=light] .filter-tab,
+[data-theme=light] .related-service-card { border-color: var(--line); }
+[data-theme=light] .service-index-link .icon { color: var(--gold); }
+[data-theme=light] .contact-section { background: var(--panel); }
+[data-theme=light] .prose { color: #4e584d; }
+[data-theme=light] .related-service-card:hover { border-color: var(--gold); background: #e9e7dd; }
+[data-theme=light] .filter-tab[aria-pressed=true] { background: #283329; border-color: #283329; color: #faf9f6; }
+[data-theme=light] select { color: var(--text); background: var(--bg); border-color: #22292366; }
+[data-theme=light] #booking { background: var(--bg); border-color: var(--line); }
+[data-theme=light] #booking .dialog-close { background: #faf9f6ed; }
+[data-theme=light] input:not([type=checkbox]),
+[data-theme=light] textarea { border-color: #22292366; }
+[data-theme=light] input::placeholder,
+[data-theme=light] textarea::placeholder { color: #6b7365; }
+[data-theme=light] .portrait-open,
+[data-theme=light] .image-arrow,
+[data-theme=light] .service-preview-caption,
+[data-theme=light] .service-image > span { color: #eeeee8; }
+[data-theme=light] .service-preview-caption > span:first-child { color: #b8bcb2; }
+[data-theme=light] #lightbox { --muted: #a8aaa4; --gold: #c3b69e; }

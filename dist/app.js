@@ -5,6 +5,25 @@
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
   const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const themeButtons = $$('[data-theme-toggle]');
+  const applyTheme = theme => {
+    const light = theme === 'light';
+    document.documentElement.dataset.theme = light ? 'light' : 'dark';
+    $('meta[name="theme-color"]').content = light ? '#faf9f6' : '#111313';
+    themeButtons.forEach(button => {
+      button.setAttribute('aria-pressed', String(light));
+      button.title = light ? 'Включить тёмную тему' : 'Включить светлую тему';
+    });
+  };
+  applyTheme(document.documentElement.dataset.theme);
+  themeButtons.forEach(button => button.addEventListener('click', () => {
+    const theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+    applyTheme(theme);
+    try { localStorage.setItem('angel-theme', theme); } catch { /* Theme still works if storage is unavailable. */ }
+  }));
+  window.addEventListener('storage', event => {
+    if (event.key === 'angel-theme' || event.key === null) applyTheme(event.newValue);
+  });
   const menuButton = $('.menu-toggle');
   const menu = $('#mobile-menu');
   const closeMenu = () => { menu.hidden = true; menuButton.setAttribute('aria-expanded','false'); menuButton.setAttribute('aria-label','Открыть меню'); document.body.classList.remove('menu-open'); };

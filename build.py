@@ -62,9 +62,14 @@ def logo(animated=False):
     return f'<a class="brand" href="/" aria-label="Angel Detailing — главная">{emblem}<img class="wordmark" src="/assets/wordmark.png" width="274" height="79" alt="Angel Detailing"></a>'
 
 navitems=[('/uslugi/','Услуги'),('/galereya/','Работы'),('/avtomobili/','Автомобили'),('/otzyvy/','Отзывы'),('/kontakty','Контакты')]
+def theme_toggle(mobile=False):
+    variant='mobile' if mobile else 'desktop'
+    label='<span>Светлая тема</span><span class="theme-switch" aria-hidden="true"></span>' if mobile else ''
+    return f'''<button class="theme-toggle theme-toggle-{variant}" type="button" data-theme-toggle aria-label="Светлая тема" aria-pressed="false" title="Включить светлую тему"><svg class="theme-sun" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg><svg class="theme-moon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"/></svg>{label}</button>'''
+
 def header(path):
     nav=''.join(f'<a href="{u}"'+(' aria-current="page"' if path.startswith(u) else '')+f'>{t}</a>' for u,t in navitems)+'<a href="/poisk" class="search-link" aria-label="Поиск по сайту"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="m13 13 4 4" stroke="currentColor" stroke-width="1.2"/></svg><span>Поиск</span></a>'
-    return f'''<a class="skip" href="#main">Перейти к содержимому</a><header class="header"><div class="header-inner">{logo(True)}<nav class="desktop-nav" aria-label="Основная навигация">{nav}</nav><a class="header-phone" href="tel:+79210989000">+7 (921) 098-90-00</a><button class="button button-small header-book" data-book>Записаться {ARROW}</button><button class="menu-toggle" aria-label="Открыть меню" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button></div></header><nav id="mobile-menu" class="mobile-menu" aria-label="Мобильная навигация" hidden>{nav}<a class="mobile-call" href="tel:+79210989000">+7 (921) 098-90-00</a><p>Санкт-Петербург<br>Выборгская набережная, 51</p><button class="button" data-book>Записаться {ARROW}</button></nav>'''
+    return f'''<a class="skip" href="#main">Перейти к содержимому</a><header class="header"><div class="header-inner">{logo(True)}<nav class="desktop-nav" aria-label="Основная навигация">{nav}</nav><a class="header-phone" href="tel:+79210989000">+7 (921) 098-90-00</a>{theme_toggle()}<button class="button button-small header-book" data-book>Записаться {ARROW}</button><button class="menu-toggle" aria-label="Открыть меню" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button></div></header><nav id="mobile-menu" class="mobile-menu" aria-label="Мобильная навигация" hidden>{nav}{theme_toggle(True)}<a class="mobile-call" href="tel:+79210989000">+7 (921) 098-90-00</a><p>Санкт-Петербург<br>Выборгская набережная, 51</p><button class="button" data-book>Записаться {ARROW}</button></nav>'''
 
 def footer():
     return f'''<footer class="footer"><div class="container footer-top">{logo()}<p>Детейлинг-студия<br>Санкт-Петербург</p><div class="footer-social"><a href="{TELEGRAM}" target="_blank" rel="noopener">Telegram {ARROW}</a><a href="https://vk.com/angel_auto" target="_blank" rel="noopener">ВКонтакте {ARROW}</a><a href="https://dzen.ru/angeldetailing" target="_blank" rel="noopener">Дзен {ARROW}</a></div></div><div class="container footer-bottom"><span>© {2026} Angel Detailing</span><span>Санкт-Петербург</span><a href="/politika">Политика конфиденциальности</a></div></footer>'''
@@ -96,7 +101,8 @@ def write(path,title,body,description='',extra=''):
     if not rel or path.endswith('/'): target=target/'index.html'
     elif '.' not in target.name: target=target/'index.html'
     target.parent.mkdir(parents=True,exist_ok=True)
-    doc=f'''<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101111"><title>{e(title)} — Angel Detailing</title><meta name="description" content="{e(description or 'Angel Detailing — студия профессионального ухода и восстановления автомобилей. Санкт-Петербург, Выборгская набережная, 51.')} "><link rel="icon" href="/assets/emblem.png"><link rel="preload" href="/assets/manrope-regular.ttf" as="font" type="font/ttf" crossorigin><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/editorial.css"><script>try{{if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&!sessionStorage.getItem('angel-logo-played')){{document.documentElement.classList.add('logo-intro');sessionStorage.setItem('angel-logo-played','1')}}}}catch(e){{}}</script>{extra}<script src="/app.js" defer></script></head><body>{header(path)}<main id="main">{body}</main>{footer()}{booking()}</body></html>'''
+    theme_boot="""(()=>{let theme='dark';try{if(localStorage.getItem('angel-theme')==='light')theme='light'}catch(e){}document.documentElement.dataset.theme=theme;document.querySelector('meta[name="theme-color"]').content=theme==='light'?'#faf9f6':'#111313'})();"""
+    doc=f'''<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101111"><title>{e(title)} — Angel Detailing</title><meta name="description" content="{e(description or 'Angel Detailing — студия профессионального ухода и восстановления автомобилей. Санкт-Петербург, Выборгская набережная, 51.')} "><script>{theme_boot}</script><link rel="icon" href="/assets/emblem.png"><link rel="preload" href="/assets/manrope-regular.ttf" as="font" type="font/ttf" crossorigin><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/editorial.css"><script>try{{if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&!sessionStorage.getItem('angel-logo-played')){{document.documentElement.classList.add('logo-intro');sessionStorage.setItem('angel-logo-played','1')}}}}catch(e){{}}</script>{extra}<script src="/app.js" defer></script></head><body>{header(path)}<main id="main">{body}</main>{footer()}{booking()}</body></html>'''
     target.write_text(doc,encoding='utf8')
 
 def card(w,index=0):
@@ -208,11 +214,11 @@ s=BeautifulSoup(policy.get('html',''),'html.parser')
 if s.h1:s.h1.decompose()
 write('/politika','Политика конфиденциальности',intro('ДОКУМЕНТЫ','Политика конфиденциальности')+'<article class="container prose policy">'+clean(str(s))+'</article>')
 write('/404.html','Страница не найдена',intro('404 / СТРАНИЦА НЕ НАЙДЕНА','Продолжим знакомство?')+'<div class="container error-actions"><a class="button" href="/">На главную ↗</a><a class="text-link" href="/galereya/">Посмотреть работы ↗</a></div>')
-# Version changed service assets so returning visitors do not keep the legacy sidebar.
-service_asset_versions={name:hashlib.sha256((DIST/name).read_bytes()).hexdigest()[:12] for name in ('editorial.css','service-details.js')}
+# Version shared assets so returning visitors receive the current styles and behavior.
+asset_versions={name:hashlib.sha256((DIST/name).read_bytes()).hexdigest()[:12] for name in ('editorial.css','service-details.js','app.js')}
 for page in DIST.rglob('*.html'):
     doc=page.read_text(encoding='utf8')
-    for name,version in service_asset_versions.items():
+    for name,version in asset_versions.items():
         doc=doc.replace(f'"/{name}"',f'"/{name}?v={version}"')
     page.write_text(doc,encoding='utf8')
 print('Built',len(list(DIST.rglob('*.html'))),'pages;',len(works),'projects;',len(DETAILS),'individual services')
