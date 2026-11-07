@@ -106,7 +106,7 @@ def write(path,title,body,description='',extra=''):
     target.write_text(doc,encoding='utf8')
 
 def card(w,index=0):
-    return f'''<a class="work-card" href="{e(w['url'])}"><div class="work-image"><img src="{w['image']}" width="640" height="800" alt="{e(w['title'])} в Angel Detailing" loading="lazy"><span class="image-arrow" aria-hidden="true">↗</span></div><div class="work-meta"><h3>{e(w['title'])}</h3><span aria-hidden="true">↗</span></div><p>{e(w['caption'])}</p></a>'''
+    return f'''<a class="work-card" href="{e(w['url'])}"><div class="work-image"><img src="{w['image']}" width="640" height="800" alt="{e(w['title'])} в Angel Detailing" loading="lazy"></div><div class="work-meta"><h3>{e(w['title'])}</h3></div><p>{e(w['caption'])}</p></a>'''
 
 def service_cards(limit=None):
     order=[0,1,3,7,2,5,6,8,4]
@@ -150,7 +150,7 @@ for w in works:
     if not images: images=[w['thumbnail']]
     title=p.get('title',w['title'])
     first=images[0]
-    photos=''.join(f'<button class="project-photo" data-photo="{asset(src)}" aria-label="Открыть фото {i+1}: {e(w["title"])}"><img src="{asset(src)}" alt="{e(w["title"])} — фото {i+1}" width="640" height="800" loading="{"eager" if i==0 else "lazy"}"><span aria-hidden="true">↗</span></button>' for i,src in enumerate(images))
+    photos=''.join(f'<button class="project-photo" data-photo="{asset(src)}" aria-label="Открыть фото {i+1}: {e(w["title"])}"><img src="{asset(src)}" alt="{e(w["title"])} — фото {i+1}" width="640" height="800" loading="{"eager" if i==0 else "lazy"}"></button>' for i,src in enumerate(images))
     write(w['url'],title,intro('ПРОЕКТ ANGEL DETAILING',e(title))+f'<section class="container project-layout"><div class="project-photos">{photos}</div><aside class="project-info"><div class="eyebrow">О ПРОЕКТЕ</div><div class="prose">{desc or "<p>Фотография из архива Angel Detailing.</p>"}</div><button class="button" data-book>Обсудить похожий проект {ARROW}</button><a class="text-link" href="/galereya/">Вернуться в галерею <span aria-hidden="true">→</span></a></aside></section>')
 
 # Service category pages, preserving both direct and ?sl= addresses.

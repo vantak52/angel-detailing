@@ -174,7 +174,7 @@
     select.value=brand;
     const render=()=>{
       const found=works.filter(w=>(filter==='all'||w.categories.includes(filter))&&(brand==='all'||w.brand===brand));
-      grid.innerHTML=found.slice(0,limit).map(w=>`<a class="work-card" href="${escape(w.url)}"><div class="work-image"><img src="${escape(w.image)}" width="640" height="800" alt="${escape(w.title)} в Angel Detailing" loading="lazy"><span class="image-arrow" aria-hidden="true">↗</span></div><div class="work-meta"><h3>${escape(w.title)}</h3><span aria-hidden="true">↗</span></div><p>${escape(w.caption)}</p></a>`).join('');
+      grid.innerHTML=found.slice(0,limit).map(w=>`<a class="work-card" href="${escape(w.url)}"><div class="work-image"><img src="${escape(w.image)}" width="640" height="800" alt="${escape(w.title)} в Angel Detailing" loading="lazy"></div><div class="work-meta"><h3>${escape(w.title)}</h3></div><p>${escape(w.caption)}</p></a>`).join('');
       status.textContent=found.length?`Показано ${Math.min(limit,found.length)} из ${found.length} проектов`:'По этому сочетанию фильтров работ пока нет. Выберите другую марку или услугу.';
       more.hidden=limit>=found.length;
       $$('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===filter)));

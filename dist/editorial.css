@@ -92,6 +92,8 @@ h2 { letter-spacing: -.045em; }
 .selected-projects .work-meta h3 { font-size: 19px; font-weight: 500; }
 .selected-projects .work-card > p { font-size: 12px; line-height: 1.7; }
 .image-arrow { border-radius: 50%; width: 38px; height: 38px; background: #111313d9; }
+/* Also suppress photo arrows in older cached page markup. */
+.project-photo > span, .work-card .image-arrow, .work-card .work-meta > span { display: none; }
 .projects-footnote { display: flex; align-items: baseline; gap: 14px; font-size: 11px; line-height: 1.75; margin-top: 31px; color: #93988f; }
 .projects-footnote > span { color: var(--gold); font-size: 19px; }
 
